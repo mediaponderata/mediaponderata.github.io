@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="it">
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Calcolatore media pesata università - gratuito e senza pubblicità</title>
+    <meta name="robots" content="index, follow">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="it_IT">
+    <meta property="og:title" content="Calcolatore media ponderata università - gratuito">
+    <meta property="og:description" content="Calcola velocemente la media ponderata dei tuoi voti universitari e verifica il voto laurea di partenza.">
+    <meta name="description" content="Calcola velocemente la media ponderata dei tuoi esami universitari e verifica il voto di laurea di partenza.">
+    <meta name="keywords" content="media ponderata, media, ponderata, voti, università, universitario, voti universitari, crediti">
+    <meta name="author" content="Calcolatore Media Ponderata">
+    <link rel="canonical" href="">
+    <script>
+        (function(){
+            try{
+                var origin = window.location.origin || (window.location.protocol + '//' + window.location.host);
+                var canonical = document.querySelector('link[rel="canonical"]');
+                if(canonical) canonical.href = origin + window.location.pathname;
+                var ld = {"@context":"https://schema.org","@type":"WebSite","name": document.title || "Calcolatore media ponderata università","url": origin};
+                var s = document.createElement('script');
+                s.type = 'application/ld+json';
+                s.text = JSON.stringify(ld);
+                document.head.appendChild(s);
+            } catch(e){}
+        })();
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Dove sono salvati i voti?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "I voti sono salvati localmente nel tuo browser tramite localStorage e non vengono inviati a server esterni."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Posso rimuovere i dati salvati?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sì — disattiva l'opzione 'Ricorda voti' o cancella i dati del sito dal tuo browser."
+          }
+        }
+      ]
+    }
+    </script>
+    <style>
+    :root{
+        --accent1: #e74c3c;
+        --accent2: #f39c12;
+        --bg: #121212;
+        --panel: #1b1b1b;
+        --input-bg: #000000;
+        --input-focus-bg: #0f0f0f;
+        /* responsive checkbox variables */
+        --checkbox-width: clamp(44px, 8vw, 64px); /* scales between 44px and 64px */
+        --checkbox-height: calc(var(--checkbox-width) * 0.55); /* maintain aspect ratio */
+        --knob-size: calc(var(--checkbox-height) - 8px);
+        --knob-translate-x: calc(var(--checkbox-width) - var(--knob-size) - 6px);
+    }
+    body {
+        background-color: var(--bg);
+        color: #e0e0e0;
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+        height: 100%;
+        text-align: center;
+    }
+    #title {
+        background: linear-gradient(90deg, var(--accent1), var(--accent2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-size: 2em;
+        font-weight: bold;
+        text-align: center;
+    }
+    #title h1{
+        font-size: 1.3em;
+    }
+    .container {
+        display: flex;
+        justify-content: center;
+        height: 100vh;
+        width: 100%;
+    }
+    .container > div {
+        width:90%;
+    }
+    #form-container {
+        background: linear-gradient(to bottom left, #2c2c2c, #000000);
+        padding: 3em;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border: 1.5px solid #ffffff;
+    }
+    #form-container p {
+        margin:0;
+        margin-bottom: 5px;
+        font-size: 1.3em;
+    }
+    #exams-form input {
+        padding: 0.45em 0.5em;
+        text-align: center;
+        font-size: 1.05em;
+        margin: 0.1em;
+        background-color: var(--input-bg);
+        color: #ffffff;
+        border-radius: 0;
+        border: 2px solid transparent;
+        border-image: linear-gradient(90deg, var(--accent1), var(--accent2)) 1;
+        outline: none;
+        min-height: 36px;
+        box-sizing: border-box;
+    }
+    .examGrade, .examWeight {
+        width: 18%;
+    }
+    .examName {
+        width: 40%;
+    }
+    #exams-form input:focus {
+        background-color: var(--input-focus-bg);
+        border-width: 3px;
+        box-shadow: 0 0 10px rgba(231,76,60,0.15), 0 0 24px rgba(243,156,18,0.06);
+        transform: translateY(-1px);
+    }
+    .deleteButton {
+        width: 6%;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin: 5px;
+    }
+    .deleteButton:hover {
+        background-color: #c0392b;
+    }
+    .deleteButton:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+    }
+    .deleteButton:active {
+        background-color: #a93226;
+    }
+    #addExam {
+        background-color: green;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin: 5px;
+    }
+    #results {
+        background: linear-gradient(90deg, var(--accent1), var(--accent2));
+        padding: 15px;
+        border-radius: 10px;
+        color: white;
+        text-align: center;
+    }
+    #results h1, h2 {
+        padding: 0;
+        margin: 0;
+    }
+    #results h2 {
+        font-size: 1.4em;
+        border-radius: 2px;
+        border-bottom: 0.2px solid #ffffff;
+    }
+    .examRow {
+        display: inline;
+    }
+    .info-container {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+    .info-box {
+        background: linear-gradient(to bottom left, #2c2c2c, #000000);
+        border: 1.5px solid #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 10px;
+        flex: 1 1 30%;
+        min-width: 250px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    footer {
+        background: #2c2c2c;
+        color: #D3D3D3;
+        padding: 0.2em;
+        font-size: 1.1em;
+    }
+    /* responsive-friendly remember checkbox */
+    .remember-wrapper {
+        display:flex;
+        align-items:center;
+        gap:12px;
+        font-size:clamp(0.9rem, 1.6vw, 1rem);
+        color: #dcdcdc;
+        cursor: pointer;
+        user-select: none;
+    }
+    .remember-wrapper input[type="checkbox"] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: var(--checkbox-width);
+        height: var(--checkbox-height);
+        border-radius: calc(var(--checkbox-height) / 2);
+        background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.12));
+        position: relative;
+        cursor: pointer;
+        transition: background 180ms ease, box-shadow 120ms ease, transform 120ms ease;
+        box-shadow: inset 0 -2px 6px rgba(0,0,0,0.65), 0 1px 0 rgba(255,255,255,0.02);
+        display:inline-block;
+        vertical-align: middle;
+        border: 1px solid rgba(255,255,255,0.12);
+        flex: 0 0 auto;
+        margin: 0;
+    }
+    /* knob */
+    .remember-wrapper input[type="checkbox"]::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 6px;
+        transform: translate(0, -50%);
+        width: var(--knob-size);
+        height: var(--knob-size);
+        border-radius: 50%;
+        background: #fbfbfb;
+        transition: transform 180ms cubic-bezier(.2,.9,.3,1), box-shadow 120ms ease, background 120ms ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+    .remember-wrapper input[type="checkbox"]:checked {
+        background: linear-gradient(90deg, var(--accent1), var(--accent2));
+        border-color: transparent;
+        box-shadow: inset 0 -2px 6px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.02);
+    }
+    .remember-wrapper input[type="checkbox"]:checked::after {
+        transform: translate(var(--knob-translate-x), -50%);
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+    }
+    .remember-wrapper input[type="checkbox"]:active::after {
+        transform: translate(var(--knob-translate-x), -50%) scale(0.97);
+    }
+    .remember-wrapper input[type="checkbox"]:not(:checked):active::after {
+        transform: translate(0, -50%) scale(0.97);
+    }
+    .remember-wrapper input[type="checkbox"]:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 6px rgba(231,76,60,0.10);
+    }
+    .remember-text {
+        display:inline-block;
+        text-align:left;
+        max-width: 520px;
+        font-size:0.95em;
+        color:#dcdcdc;
+    }
+    /* mobile: stack label and checkbox for narrow viewports */
+    @media (max-width: 520px) {
+        .remember-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .remember-wrapper input[type="checkbox"] {
+            /* make checkbox a bit smaller on very small screens */
+            --checkbox-width: 44px;
+            --checkbox-height: calc(var(--checkbox-width) * 0.55);
+        }
+        .remember-text { max-width: 100%; }
+    }
+    @media (max-width: 768px) {
+        .info-box { flex: 1 1 100%; }
+    }
+    @media (max-width: 767px) {
+        #title h1 { font-size: 1em; }
+        .container > div { width:100%; }
+        #form-container { padding: 0; }
+        #exams-form input { font-size: 1em; padding: 4px; }
+        .deleteButton { font-size: 1em; padding: 2px; }
+    }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+    <main class="container" role="main">
+        <div>
+            <div id="title"><h1>MEDIA PONDERATA PER L'UNIVERSITÀ</h1></div>
+            <div id="form-container">
+                <p>Calcola gratuitamente la media ponderata dei tuoi esami universitari attraverso questo sito.</p>
+                <div id="grade-form-container">
+                   <form id="exams-form" onsubmit="return false;"></form>
+               </div>
+               <div style="margin:8px 0;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
+                   <button id="addExam" type="button">Aggiungi esame</button>
+                   <label class="remember-wrapper" style="cursor:pointer;">
+                       <input id="remember-checkbox" type="checkbox" aria-label="Ricorda voti nel browser">
+                       <span class="remember-text">Ricorderà i voti nel browser usando localStorage (solo sul tuo dispositivo). Puoi rimuovere i dati disattivando questa opzione.</span>
+                   </label>
+               </div>
+               <div id="cookie-msg" aria-live="polite" style="margin-top:8px;color:#9fd99f;display:none;"></div>
+           </div>
+           <div id="results">
+            <h1>RISULTATI</h1>
+            <div class="show-results">
+                <h2 id="weighted-mean-h"><label id="weighted-mean"></label></h2>
+                <h2 id="arithmetic-mean-h"><label id="arithmetic-mean"></label></h2>
+                <h2 id="weights-sum-h"><label id="weights-sum"></label></h2>
+                <h2 id="final-grade-h"><label id="final-grade"></label></h2>
+            </div>
+        </div>
+        <div class="info-container">
+            <div class="info-box">
+                <h2>Media aritmetica</h2>
+                <p>La media aritmetica viene calcolata sommando tutti i voti e dividendo per il numero di voti</p>
+                <p>$$\frac{\sum_i x_i}{N}$$</p>
+            </div>
+            <div class="info-box">
+                <h2>Media ponderata</h2>
+                <p>La media ponderata viene calcolata sommando i prodotti di ogni voto per i relativi crediti e dividendo per la somma dei crediti.</p>
+                <p>$$\frac{\sum_i c_ix_i}{\sum_i c_i}$$</p>
+            </div>
+            <div class="info-box">
+                <h2>Voto di laurea</h2>
+                <p>Il voto di partenza viene calcolato convertendo in centodecimi la media ponderata dei voti degli esami.</p>
+                <p>$$\text{Media ponderata}\cdot\frac{110}{30}$$</p>
+            </div>
+        </div>
+        <footer>
+            I dati sono processati localmente sul tuo dispositivo.
+            <br>Non si escludono errori nella realizzazione del sito. Verifica personalmente i risultati.
+            <p style="font-size:0.9em;margin-top:6px;">Attivando l'opzione "Ricorda voti" i dati inseriti vengono salvati solamente nel tuo browser tramite <strong>localStorage</strong>.</p>
+        </footer>
+    </main>
+<script>
+$(document).ready(function(){ $("#results").hide(); });
+let exams = [];
+function saveExamsToStorage(showMsg = true){ try{ const payload = JSON.stringify(exams); localStorage.setItem('exam_grades', payload); if(showMsg){ $("#cookie-msg").text("I voti sono stati salvati localmente nel browser.").show().delay(3000).fadeOut(); } }catch(e){ $("#cookie-msg").text("Errore nel salvataggio locale.").show().delay(3000).fadeOut(); } }
+function loadExamsFromStorage(){ const raw = localStorage.getItem('exam_grades'); if(!raw) return false; try{ const parsed = JSON.parse(raw); if(!Array.isArray(parsed)) return false; exams = []; $("#exams-form").empty(); parsed.forEach(obj => { addExam(1, obj); }); setResults(); return true; }catch(e){ return false; } }
+function deleteSavedExams(){ localStorage.removeItem('exam_grades'); $("#cookie-msg").text("Dati locali rimossi.").show().delay(2000).fadeOut(); }
+function addExam(num, initialData){ for(let i=0;i<num;i++){ const data = initialData || { examName: '', examGrade: null, examWeight: null }; const newExamHTML = '<div class="examRow" style="display:block;margin:6px 0;">' + '<input class="examName" type="text" placeholder="Esame" aria-label="Nome esame">' + '<input class="examGrade" type="number" placeholder="Voto" aria-label="Voto esame">' + '<input class="examWeight" type="number" placeholder="Crediti" aria-label="Crediti esame">' + '<button type="button" class="deleteButton" aria-label="Elimina esame" tabindex="-1">X</button>' + '</div>'; $("#exams-form").append(newExamHTML); exams.push({ examName: data.examName || '', examGrade: data.examGrade ?? null, examWeight: data.examWeight ?? null }); if(initialData){ const $last = $("#exams-form .examRow").last(); $last.find('.examName').val(data.examName || ''); if(data.examGrade !== null && data.examGrade !== undefined) $last.find('.examGrade').val(data.examGrade); if(data.examWeight !== null && data.examWeight !== undefined) $last.find('.examWeight').val(data.examWeight); } } }
+function setResults(){ let gradesSum = 0; let gradesNum = 0; let numerator_weighted_sum = 0; let weights_sum = 0; for(let i=0;i<exams.length;i++){ const examObj = exams[i]; const gradeRaw = examObj.examGrade; const weightRaw = examObj.examWeight; const grade = (gradeRaw === null || gradeRaw === '' || gradeRaw === undefined) ? NaN : Number(gradeRaw); const weight = (weightRaw === null || weightRaw === '' || weightRaw === undefined) ? NaN : Number(weightRaw); if(Number.isFinite(grade) && Number.isFinite(weight) && weight>0){ numerator_weighted_sum += grade * weight; weights_sum += weight; gradesSum += grade; gradesNum++; } else if(Number.isFinite(grade) && (weightRaw === null || weightRaw === '' || weightRaw === undefined || Number(weightRaw)===0)){ gradesSum += grade; gradesNum++; } } const weighted_mean = (weights_sum>0)?(numerator_weighted_sum/weights_sum):NaN; const arithmetic_mean = (gradesNum>0)?(gradesSum/gradesNum):NaN; const final_grade = Number.isFinite(weighted_mean)?(weighted_mean*11/3):NaN; if(!Number.isFinite(weighted_mean) && gradesNum===0){ $("#results").hide(); return; } if(Number.isFinite(weighted_mean)){ $("#weighted-mean").text("Media ponderata: "+weighted_mean.toFixed(2)+"/30"); } else { $("#weighted-mean").text("Media ponderata: ---"); } $("#weighted-mean-h").show(); if(gradesNum>0 && Number.isFinite(arithmetic_mean)){ $("#arithmetic-mean").text("Media aritmetica: "+arithmetic_mean.toFixed(2)+"/30"); } else { $("#arithmetic-mean").text("Media aritmetica: ---"); } $("#arithmetic-mean-h").show(); $("#weights-sum").text("Crediti conseguiti: "+(weights_sum||0)); if(Number.isFinite(final_grade)){ $("#final-grade").text("Voto di base laurea: "+final_grade.toFixed(2)+"/110"); } else { $("#final-grade").text("Voto di base laurea: ---"); } $("#results").show(); }
+$(document).on('input','#exams-form input',function(){ const $row = $(this).closest('.examRow'); const idx = $row.index(); if(idx<0||idx>=exams.length) return; const $this = $(this); if($this.hasClass('examName')){ exams[idx].examName = $this.val(); } else if($this.hasClass('examGrade')){ const n = $this.val(); exams[idx].examGrade = (n===''?null:Number(n)); } else if($this.hasClass('examWeight')){ const n = $this.val(); exams[idx].examWeight = (n===''?null:Number(n)); } setResults(); if($('#remember-checkbox').is(':checked')) saveExamsToStorage(false); });
+$(document).on("click",".deleteButton",function(){ const $row = $(this).closest('.examRow'); const idx = $row.index(); if(idx>=0&&idx<exams.length) exams.splice(idx,1); $row.remove(); setResults(); if($('#remember-checkbox').is(':checked')) saveExamsToStorage(false); });
+$(document).on('keydown','#exams-form input',function(e){ const $this=$(this); if(e.key&&e.key.startsWith('Arrow')){ const key=e.key; const $rows=$('#exams-form .examRow'); const $row=$this.closest('.examRow'); const rowIndex=$rows.index($row); const colIndex=$row.find('input').index($this); function caretAtStart(el){ try{ return el.selectionStart===0&&el.selectionEnd===0; }catch(e){ return false; } } function caretAtEnd(el){ try{ return el.selectionStart===(el.value||'').length; }catch(e){ return false; } } const isNumberLike=($this.attr('type')==='number')||$this.hasClass('examGrade')||$this.hasClass('examWeight'); if(key==='ArrowLeft'){ if(!isNumberLike&&!caretAtStart(this)) return; e.preventDefault(); if(colIndex>0){ $row.find('input').eq(colIndex-1).focus().select(); } else if(rowIndex>0){ $rows.eq(rowIndex-1).find('input').eq(2).focus().select(); } } else if(key==='ArrowRight'){ if(!isNumberLike&&!caretAtEnd(this)) return; e.preventDefault(); if(colIndex<2){ $row.find('input').eq(colIndex+1).focus().select(); } else { if(rowIndex<$rows.length-1){ $rows.eq(rowIndex+1).find('input').eq(0).focus().select(); } else { addExam(1); const $newRow=$('#exams-form .examRow').last(); $newRow.find('input').eq(0).focus().select(); } } } else if(key==='ArrowUp'){ e.preventDefault(); if(rowIndex>0){ const $targetRow=$rows.eq(rowIndex-1); const targetCol=Math.min(colIndex,$targetRow.find('input').length-1); $targetRow.find('input').eq(targetCol).focus().select(); } } else if(key==='ArrowDown'){ e.preventDefault(); if(rowIndex<$rows.length-1){ const $targetRow=$rows.eq(rowIndex+1); const targetCol=Math.min(colIndex,$targetRow.find('input').length-1); $targetRow.find('input').eq(targetCol).focus().select(); } else { addExam(1); const $newRow=$('#exams-form .examRow').last(); const targetCol=Math.min(colIndex,$newRow.find('input').length-1); $newRow.find('input').eq(targetCol).focus().select(); } } return; } if(e.key==='Tab'){ const $inputs=$("#exams-form").find('input').filter(':visible'); const currentIndex=$inputs.index(this); const lastIndex=$inputs.length-1; if(!e.shiftKey&&currentIndex===lastIndex){ e.preventDefault(); addExam(1); const $newInputs=$("#exams-form").find('input').filter(':visible'); const target=$newInputs.eq($newInputs.length-3); target.focus().select(); } return; } if(e.key==='Enter'){ e.preventDefault(); const $inputs=$("#exams-form").find('input').filter(':visible'); const currentIndex=$inputs.index(this); const nextIndex=currentIndex+1; if(nextIndex<$inputs.length){ $inputs.eq(nextIndex).focus().select(); } else { addExam(1); const $newInputs=$("#exams-form").find('input').filter(':visible'); $newInputs.eq($newInputs.length-3).focus().select(); } return; } if(e.key==='Backspace'||e.key==='Delete'){ if($this.hasClass('examName')){ const $row=$this.closest('.examRow'); const nameVal=$row.find('.examName').val(); const gradeVal=$row.find('.examGrade').val(); const weightVal=$row.find('.examWeight').val(); const emptyName=(nameVal===''||nameVal===null||nameVal===undefined); const emptyGrade=(gradeVal===''||gradeVal===null||gradeVal===undefined); const emptyWeight=(weightVal===''||weightVal===null||weightVal===undefined); if(emptyName&&emptyGrade&&emptyWeight){ e.preventDefault(); const idx=$row.index(); if(idx>=0&&idx<exams.length) exams.splice(idx,1); const $prevRow=$row.prevAll('.examRow').first(); $row.remove(); if($prevRow.length){ $prevRow.find('.examName').focus().select(); } else { const $remaining=$("#exams-form .examRow"); if($remaining.length){ $remaining.first().find('.examName').focus().select(); } else { addExam(1); const $newInputs=$("#exams-form").find('input').filter(':visible'); $newInputs.eq($newInputs.length-3).focus().select(); } } setResults(); if($('#remember-checkbox').is(':checked')) saveExamsToStorage(false); } } } });
+$(document).on('change','#remember-checkbox',function(){ if($(this).is(':checked')) saveExamsToStorage(); else deleteSavedExams(); });
+$(document).ready(function(){ if(!loadExamsFromStorage()){ addExam(3); } else { $('#remember-checkbox').prop('checked',true); } try{ if(!('ontouchstart' in window)){ const $first=$("#exams-form").find('input').filter(':visible').first(); if($first.length) $first.focus().select(); } }catch(e){} $("#addExam").click(function(){ addExam(1); const $newInputs=$("#exams-form").find('input').filter(':visible'); $newInputs.eq($newInputs.length-3).focus().select(); }); });
+</script>
+</body>
+</html>
